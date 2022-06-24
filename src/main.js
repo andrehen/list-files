@@ -1,5 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+
+const { handleSetTitle, handleFileOpen } = require('./mainFunctions');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -10,7 +12,7 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -24,10 +26,21 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 };
 
+// function handleSetTitle (event, title) {
+//   const webContents = event.sender
+//   const win = BrowserWindow.fromWebContents(webContents)
+//   win.setTitle(title)
+// }
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+// app.on('ready', createWindow);
+app.whenReady().then(() => {
+  ipcMain.on('set-title', handleSetTitle);
+  ipcMain.handle('dialog:openFile', handleFileOpen)
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
