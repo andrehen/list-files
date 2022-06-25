@@ -5,5 +5,22 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('api', {
   setTitle: title => ipcRenderer.send('set-title', title),
-  openFile: () => ipcRenderer.invoke('dialog:openFile')
+  showAlert: msg => ipcRenderer.send('show-alert', msg),
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  onUpdateCounter: callback => ipcRenderer.on('update-counter', callback),
 });
+
+/**
+ * You can call ipcRenderer.on directly in the preload script rather than exposing it over the context bridge.
+ * 
+ * However, this approach has limited flexibility compared to exposing your preload APIs over the context bridge,
+ * since your listener can't directly interact with your renderer code.
+ */
+// window.addEventListener('DOMContentLoaded', () => {
+//   const counter = document.getElementById('counter');
+//   ipcRenderer.on('update-counter', (_event, value) => {
+//     const oldValue = Number(counter.innerText);
+//     const newValue = oldValue + value;
+//     counter.innerText = newValue;
+//   })
+// });
