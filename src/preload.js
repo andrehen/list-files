@@ -6,8 +6,9 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('api', {
   setTitle: title => ipcRenderer.send('set-title', title),
   showAlert: msg => ipcRenderer.send('show-alert', msg),
-  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  openDir: () => ipcRenderer.invoke('dialog:openDir'),
   onUpdateCounter: callback => ipcRenderer.on('update-counter', callback),
+  onFileProcessingUpdate: callback => ipcRenderer.on('update-file-processing-status', callback),
 });
 
 /**

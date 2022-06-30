@@ -6,12 +6,43 @@ const handleSetTitle = (event, title) => {
   win.setTitle(`${title}`)
 }
 
-const handleFileOpen = mainWindow => async () => {
+const EVENTS = {
+  error: 'error',
+  begin: 'begin',
+  finished: 'finished',
+  update: 'update'
+}
+
+const handleDirectoryOpen = mainWindow => async () => {
+  const sendWeb = (eventName, text) => { mainWindow.webContents.send('update-file-processing-status', {eventName, text}); }
+
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] })
   if (canceled) {
-    return
+    console.log('User canceled...');
+    sendWeb(EVENTS.error,'User canceled...');
+    return;
   } else {
-    return filePaths[0]
+    const selectedDirPath = filePaths[0];
+
+    sendWeb(EVENTS.begin);
+    sendWeb(EVENTS.update, 'Gerando arquivos...');
+    console.log(`Must scan the dir: ${selectedDirPath}`);
+    console.log('Scanning...');
+
+    setTimeout(() => {
+      sendWeb(EVENTS.update, 'Arquivos gerados ...')
+      dialog.showSaveDialog(mainWindow, {
+        buttonLabel: 'Salvar algo',
+        defaultPath: 'file-lerolero.txt'
+      }).then(({ canceled, filePath }) => {
+        sendWeb(EVENTS.finished);
+        if (canceled) console.log('User canceled...');
+        else {
+          sendWeb(EVENTS.update, `File saved in the path: ${filePath}`);
+        }
+        // return filePaths[0];
+      });
+    }, 3000);
   }
 }
 
@@ -25,4 +56,4 @@ const handleShowAlert = mainWindow => (_event, message) => {
   dialog.showMessageBox(mainWindow, options);
 }
 
-module.exports = { handleSetTitle, handleFileOpen, handleShowAlert }
+module.exports = { handleSetTitle, handleDirectoryOpen, handleShowAlert, EVENTS }

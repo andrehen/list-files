@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 
-const { handleSetTitle, handleFileOpen, handleShowAlert } = require('./mainFunctions');
+const { handleSetTitle, handleDirectoryOpen, handleShowAlert } = require('./mainFunctions');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -17,6 +17,7 @@ const createWindow = () => {
     width: 1000,
     height: 600,
     webPreferences: {
+      nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
@@ -54,7 +55,7 @@ app.whenReady().then(() => {
   ipcMain.on('set-title', handleSetTitle);
   ipcMain.on('show-alert', handleShowAlert(mainWindow));
   ipcMain.on('counter-value', (_event, value) => { console.log(`Message from renderer: ${value}`) });
-  ipcMain.handle('dialog:openFile', handleFileOpen(mainWindow));
+  ipcMain.handle('dialog:openDir', handleDirectoryOpen(mainWindow));
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
