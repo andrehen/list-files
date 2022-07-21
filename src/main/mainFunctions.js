@@ -1,4 +1,5 @@
 const { BrowserWindow, dialog } = require('electron');
+const { scanDir, writeFile } = require('./fileUtils');
 
 const handleSetTitle = (event, title) => {
   const webContents = event.sender
@@ -14,36 +15,52 @@ const EVENTS = {
 }
 
 const handleDirectoryOpen = mainWindow => async () => {
-  const sendWeb = (eventName, text) => { mainWindow.webContents.send('update-file-processing-status', {eventName, text}); }
+  const sendWeb = (eventName, text) => { mainWindow.webContents.send('update-file-processing-status', { eventName, text }); }
 
   const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] })
+  
   if (canceled) {
     console.log('User canceled...');
-    sendWeb(EVENTS.error,'User canceled...');
+    sendWeb(EVENTS.error, 'User canceled...');
     return;
-  } else {
-    const selectedDirPath = filePaths[0];
+  }
 
-    sendWeb(EVENTS.begin);
-    sendWeb(EVENTS.update, 'Gerando arquivos...');
-    console.log(`Must scan the dir: ${selectedDirPath}`);
-    console.log('Scanning...');
+  const selectedDirPath = filePaths[0];
 
-    setTimeout(() => {
-      sendWeb(EVENTS.update, 'Arquivos gerados ...')
+  sendWeb(EVENTS.begin);
+  sendWeb(EVENTS.update, 'Gerando arquivos...');
+  console.log(`Must scan the dir: ${selectedDirPath}`);
+  console.log('Scanning...');
+
+  const { outputStr, fileName } = scanDir(selectedDirPath);
+
+  scanDir(selectedDirPath)
+    .then(({ outputStr, fileName }) => {
+      console.log('Gerou um output!');
+
+      sendWeb(EVENTS.update, 'Arquivos gerados ...');
       dialog.showSaveDialog(mainWindow, {
         buttonLabel: 'Salvar algo',
-        defaultPath: 'file-lerolero.txt'
+        defaultPath: fileName,
       }).then(({ canceled, filePath }) => {
         sendWeb(EVENTS.finished);
         if (canceled) console.log('User canceled...');
         else {
-          sendWeb(EVENTS.update, `File saved in the path: ${filePath}`);
+          writeFile(filePath, outputStr)
+            .then(() => {
+              sendWeb(EVENTS.update, `File saved in the path: ${filePath}`);
+            })
+            .catch(() => {
+              sendWeb(EVENTS.update, `Some error writing the file: ${filePath}`);
+            });
         }
-        // return filePaths[0];
       });
-    }, 3000);
-  }
+    })
+    .catch(error => {
+      sendWeb(EVENTS.update, error);
+      sendWeb(EVENTS.finished);
+    });
+
 }
 
 const handleShowAlert = mainWindow => (_event, message) => {
