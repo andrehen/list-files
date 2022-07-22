@@ -28,12 +28,25 @@ function scanDir(dirPath) {
 
   const dirTree = (filename) => {
     count++;
-    var stats = fs.lstatSync(filename),
-      info = {
-        id: count,
-        // path: filename,
-        name: path.basename(filename)
-      };
+
+    var info = {
+      id: count,
+      // path: filename,
+      name: path.basename(filename)
+    };
+
+    var stats;
+    try {
+      stats = fs.lstatSync(filename);
+    } catch (err) {
+      return {
+        id: info.id,
+        name: `${info.name} - [NO_ACCESS]`,
+        size: 0,
+      }
+    }
+    
+    
 
     if (stats.isDirectory()) {
       // info.type = "folder";

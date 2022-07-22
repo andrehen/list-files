@@ -16,3 +16,7 @@ body {
   border-color: black;
   border-radius: 4px;
 }
+
+.output {
+  padding: 15px;
+}

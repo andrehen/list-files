@@ -32,8 +32,6 @@ const handleDirectoryOpen = mainWindow => async () => {
   console.log(`Must scan the dir: ${selectedDirPath}`);
   console.log('Scanning...');
 
-  const { outputStr, fileName } = scanDir(selectedDirPath);
-
   scanDir(selectedDirPath)
     .then(({ outputStr, fileName }) => {
       console.log('Gerou um output!');

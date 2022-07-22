@@ -22,28 +22,11 @@ const createWindow = () => {
     },
   });
 
-  const menu = Menu.buildFromTemplate([
-    {
-      label: 'Funções',
-      submenu: [
-        {
-          click: () => mainWindow.webContents.send('update-counter', 1),
-          label: 'Increment',
-        },
-        {
-          click: () => mainWindow.webContents.send('update-counter', -1),
-          label: 'Decrement',
-        }
-      ]
-    }
-  ])
-  Menu.setApplicationMenu(menu)
-
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
