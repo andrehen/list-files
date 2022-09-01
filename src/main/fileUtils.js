@@ -1,4 +1,7 @@
 var fs = require('fs');
+var fsPromises = require('fs').promises;
+// TODO: continue from here https://nodejs.org/dist/latest-v10.x/docs/api/fs.html
+
 var path = require('path');
 
 function formatedDate() {

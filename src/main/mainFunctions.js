@@ -38,7 +38,7 @@ const handleDirectoryOpen = mainWindow => async () => {
 
       sendWeb(EVENTS.update, 'Arquivos gerados ...');
       dialog.showSaveDialog(mainWindow, {
-        buttonLabel: 'Salvar algo',
+        buttonLabel: 'Salvar',
         defaultPath: fileName,
       }).then(({ canceled, filePath }) => {
         sendWeb(EVENTS.finished);
